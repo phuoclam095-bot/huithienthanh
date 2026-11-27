@@ -1412,50 +1412,103 @@
 
     async function openCccdScanner() {
       document.getElementById("cccdModal").classList.add("show");
-      qrScanner = new Html5Qrcode("cccdReader");
+
+      // Kích hoạt bộ giải mã phần cứng BarcodeDetector của thiết bị để đọc QR mật độ cao trên CCCD
+      qrScanner = new Html5Qrcode("cccdReader", {
+        experimentalFeatures: { useBarCodeDetectorIfSupported: true },
+        verbose: false
+      });
+
+      const onCccdDecoded = (decodedText) => {
+        const raw = (decodedText || "").trim();
+        const parts = raw.split("|");
+
+        // Định dạng chuẩn QR CCCD: SốCCCD(12 số)|SốCMND|HọTên|NgàySinh(ddmmyyyy)|GiớiTính|ĐịaChỉ|NgàyCấp
+        if (parts.length >= 3 && /^\d{12}$/.test(parts[0].trim())) {
+          document.getElementById("fCccd").value = parts[0].trim();
+          document.getElementById("fFullName").value = formatVietnameseName(parts[2]);
+
+          const birthRaw = (parts[3] || "").trim();
+          const genderRaw = (parts[4] || "").trim();
+          const addrRaw = (parts[5] || "").trim();
+          const currentNote = document.getElementById("fNote").value.trim();
+
+          const extraInfo = [
+            birthRaw.length === 8 ? `NS: ${birthRaw.slice(0,2)}/${birthRaw.slice(2,4)}/${birthRaw.slice(4)}` : "",
+            genderRaw ? `GT: ${genderRaw}` : "",
+            addrRaw ? `ĐC: ${addrRaw}` : ""
+          ].filter(Boolean).join(" • ");
+
+          if (extraInfo && (!addrRaw || !currentNote.includes(addrRaw))) {
+            document.getElementById("fNote").value = currentNote ? `${currentNote}\n${extraInfo}` : extraInfo;
+          }
+          checkDuplicateInfo();
+        } else {
+          alert("Đã quét được mã nhưng không đúng định dạng CCCD:\n" + raw);
+        }
+        closeCccdScanner();
+      };
+
+      const scanConfig = {
+        fps: 25,
+        qrbox: (vw, vh) => {
+          const size = Math.min(Math.floor(Math.min(vw, vh) * 0.78), 280);
+          return { width: size, height: size };
+        },
+        // Chỉ quét duy nhất QR_CODE để tăng tốc độ xử lý gấp 5 lần
+        formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE]
+      };
 
       try {
         await qrScanner.start(
           { facingMode: "environment" },
-          { fps: 15, qrbox: { width: 240, height: 240 } },
-          (decodedText) => {
-            const parts = decodedText.split("|");
-            if (parts.length >= 3 && /^\d{12}$/.test(parts[0].trim())) {
-              document.getElementById("fCccd").value = parts[0].trim();
-              document.getElementById("fFullName").value = formatVietnameseName(parts[2]);
-
-              const birthRaw = parts[3] || "";
-              const addrRaw = parts[5] || "";
-              const currentNote = document.getElementById("fNote").value.trim();
-              const extraInfo = [
-                birthRaw.length === 8 ? `Ngày sinh: ${birthRaw.slice(0,2)}/${birthRaw.slice(2,4)}/${birthRaw.slice(4)}` : "",
-                addrRaw ? `Địa chỉ CCCD: ${addrRaw}` : ""
-              ].filter(Boolean).join(" • ");
-
-              if (extraInfo && !currentNote.includes(addrRaw)) {
-                document.getElementById("fNote").value = currentNote ? `${currentNote}\n${extraInfo}` : extraInfo;
-              }
-              checkDuplicateInfo();
-            } else {
-              alert("Đã quét mã: " + decodedText);
+          {
+            ...scanConfig,
+            videoConstraints: {
+              facingMode: "environment",
+              width: { ideal: 1920 },
+              height: { ideal: 1080 },
+              focusMode: { ideal: "continuous" }
             }
-            closeCccdScanner();
-          }
+          },
+          onCccdDecoded
         );
-      } catch (err) {
-        closeCccdScanner();
-        alert("Không mở được camera. Vui lòng cấp quyền Camera và mở trang qua HTTPS.");
+      } catch (err1) {
+        try {
+          // Dự phòng cho trình duyệt/WebView không hỗ trợ videoConstraints nâng cao
+          await qrScanner.start({ facingMode: "environment" }, scanConfig, onCccdDecoded);
+        } catch (err2) {
+          closeCccdScanner();
+          alert("Không mở được camera. Vui lòng cấp quyền Camera và mở trang qua HTTPS.");
+          return;
+        }
       }
+
+      // Tự động zoom 1.8x (nếu camera hỗ trợ) vì ô QR trên thẻ CCCD rất nhỏ
+      try {
+        const caps = qrScanner.getRunningTrackCameraCapabilities();
+        const zoomCap = caps.zoomFeature();
+        if (zoomCap.isSupported()) {
+          const targetZoom = Math.min(1.8, zoomCap.max());
+          if (targetZoom > zoomCap.min()) {
+            await zoomCap.apply(targetZoom);
+          }
+        }
+      } catch (e) {}
     }
 
     async function closeCccdScanner() {
       if (qrScanner) {
-        try { await qrScanner.stop(); } catch (e) {}
+        try {
+          if (qrScanner.isScanning) {
+            await qrScanner.stop();
+          }
+          await qrScanner.clear();
+        } catch (e) {}
         qrScanner = null;
       }
       document.getElementById("cccdModal").classList.remove("show");
     }
-
     // =========================================================================
     // XUẤT EXCEL (CSV), SAO LƯU & KHÔI PHỤC
     // =========================================================================
