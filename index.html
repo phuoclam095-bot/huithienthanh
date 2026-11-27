@@ -498,7 +498,7 @@
           Hồ Sơ Quản Lý Hụi Viên
           <span id="syncStatusPill" class="sync-pill loading">⏳ Đang kết nối Supabase...</span>
         </h1>
-        <p>Đồng bộ tự động n8n & PostgreSQL Supabase</p>
+        <p>Bảng dữ liệu: tt_hui_vien • Đồng bộ n8n & Supabase</p>
       </div>
     </div>
 
@@ -517,7 +517,7 @@
     <div class="stat-card">
       <span class="stat-label">Tổng số hụi viên</span>
       <span class="stat-val" id="statTotal">0</span>
-      <span class="stat-sub">Hồ sơ trên Supabase</span>
+      <span class="stat-sub">Hồ sơ trong tt_hui_vien</span>
     </div>
     <div class="stat-card">
       <span class="stat-label">Người quản hụi</span>
@@ -708,7 +708,7 @@
 
   <script>
     const N8N_HUI_VIEN_WEBHOOK = "https://wsm.congtubaclieu.com.vn/webhook/hui-vien-api";
-    const CACHE_KEY = "hui_vien_supabase_cache_v1";
+    const CACHE_KEY = "tt_hui_vien_supabase_cache_v1";
 
     let members = [];
     let editingId = null;
@@ -738,13 +738,13 @@
 
     function saveCache(list) {
       members = Array.isArray(list) ? list : [];
-      members.sort((a, b) => Number(a.stt) - Number(b.stt));
-      members.forEach((m, idx) => { m.stt = idx + 1; });
+      members.sort((a, b) => Number(a.tt_stt) - Number(b.tt_stt));
+      members.forEach((m, idx) => { m.tt_stt = idx + 1; });
       localStorage.setItem(CACHE_KEY, JSON.stringify(members));
     }
 
     // =========================================================================
-    // GIAO TIẾP BACKEND N8N -> SUPABASE
+    // GIAO TIẾP BACKEND N8N -> SUPABASE (BẢNG tt_hui_vien)
     // =========================================================================
     async function callN8nApi(payload) {
       const response = await fetch(N8N_HUI_VIEN_WEBHOOK, {
@@ -787,16 +787,16 @@
 
     function updateStats() {
       document.getElementById("statTotal").textContent = members.length;
-      const managers = new Set(members.map(m => (m.manager || "").trim()).filter(Boolean));
+      const managers = new Set(members.map(m => (m.tt_manager || "").trim()).filter(Boolean));
       document.getElementById("statManagers").textContent = managers.size;
-      const verified = members.filter(m => /^\d{12}$/.test((m.cccd || "").trim())).length;
+      const verified = members.filter(m => /^\d{12}$/.test((m.tt_cccd || "").trim())).length;
       document.getElementById("statVerified").textContent = verified;
-      const withNotes = members.filter(m => (m.note || "").trim().length > 0).length;
+      const withNotes = members.filter(m => (m.tt_note || "").trim().length > 0).length;
       document.getElementById("statNotes").textContent = withNotes;
     }
 
     function updateManagerDropdowns() {
-      const managers = Array.from(new Set(members.map(m => (m.manager || "").trim()).filter(Boolean))).sort();
+      const managers = Array.from(new Set(members.map(m => (m.tt_manager || "").trim()).filter(Boolean))).sort();
       const filterSelect = document.getElementById("managerFilter");
       const currentVal = filterSelect.value;
 
@@ -814,14 +814,14 @@
       const mgrFilter = document.getElementById("managerFilter").value;
 
       const filtered = members.filter(m => {
-        const matchManager = !mgrFilter || (m.manager || "").trim() === mgrFilter;
+        const matchManager = !mgrFilter || (m.tt_manager || "").trim() === mgrFilter;
         const matchKeyword = !keyword ||
-          (m.full_name || "").toLowerCase().includes(keyword) ||
-          (m.cccd || "").toLowerCase().includes(keyword) ||
-          (m.phone || "").toLowerCase().includes(keyword) ||
-          (m.fb_name || "").toLowerCase().includes(keyword) ||
-          (m.manager || "").toLowerCase().includes(keyword) ||
-          (m.note || "").toLowerCase().includes(keyword);
+          (m.tt_full_name || "").toLowerCase().includes(keyword) ||
+          (m.tt_cccd || "").toLowerCase().includes(keyword) ||
+          (m.tt_phone || "").toLowerCase().includes(keyword) ||
+          (m.tt_fb_name || "").toLowerCase().includes(keyword) ||
+          (m.tt_manager || "").toLowerCase().includes(keyword) ||
+          (m.tt_note || "").toLowerCase().includes(keyword);
         return matchManager && matchKeyword;
       });
 
@@ -839,17 +839,17 @@
       }
 
       tbody.innerHTML = filtered.map(m => `
-        <tr class="${String(m.id) === String(editingId) ? "selected" : ""}" onclick="selectRecord('${escapeAttr(m.id)}')">
-          <td class="col-stt">${m.stt}</td>
+        <tr class="${String(m.tt_id) === String(editingId) ? "selected" : ""}" onclick="selectRecord('${escapeAttr(m.tt_id)}')">
+          <td class="col-stt">${m.tt_stt}</td>
           <td>
-            <div class="member-name">${escapeHtml(m.full_name)}</div>
-            <div class="member-code">HS-${String(m.stt).padStart(4, "0")}</div>
+            <div class="member-name">${escapeHtml(m.tt_full_name)}</div>
+            <div class="member-code">HS-${String(m.tt_stt).padStart(4, "0")}</div>
           </td>
-          <td style="font-family:monospace; font-weight:600;">${escapeHtml(m.cccd)}</td>
-          <td style="font-weight:600; color:var(--primary);">${escapeHtml(m.phone)}</td>
-          <td>${escapeHtml(m.fb_name || "—")}</td>
-          <td><span class="badge-manager">${escapeHtml(m.manager || "Chưa phân")}</span></td>
-          <td class="note-cell" title="${escapeAttr(m.note || "")}">${escapeHtml(m.note || "—")}</td>
+          <td style="font-family:monospace; font-weight:600;">${escapeHtml(m.tt_cccd)}</td>
+          <td style="font-weight:600; color:var(--primary);">${escapeHtml(m.tt_phone)}</td>
+          <td>${escapeHtml(m.tt_fb_name || "—")}</td>
+          <td><span class="badge-manager">${escapeHtml(m.tt_manager || "Chưa phân")}</span></td>
+          <td class="note-cell" title="${escapeAttr(m.tt_note || "")}">${escapeHtml(m.tt_note || "—")}</td>
         </tr>
       `).join("");
     }
@@ -873,24 +873,24 @@
     }
 
     function selectRecord(id) {
-      const m = members.find(item => String(item.id) === String(id));
+      const m = members.find(item => String(item.tt_id) === String(id));
       if (!m) return;
 
-      editingId = m.id;
-      document.getElementById("fStt").value = m.stt;
-      document.getElementById("fFullName").value = m.full_name || "";
-      document.getElementById("fCccd").value = m.cccd || "";
-      document.getElementById("fPhone").value = m.phone || "";
-      document.getElementById("fFbName").value = m.fb_name || "";
-      document.getElementById("fManager").value = m.manager || "";
-      document.getElementById("fNote").value = m.note || "";
+      editingId = m.tt_id;
+      document.getElementById("fStt").value = m.tt_stt;
+      document.getElementById("fFullName").value = m.tt_full_name || "";
+      document.getElementById("fCccd").value = m.tt_cccd || "";
+      document.getElementById("fPhone").value = m.tt_phone || "";
+      document.getElementById("fFbName").value = m.tt_fb_name || "";
+      document.getElementById("fManager").value = m.tt_manager || "";
+      document.getElementById("fNote").value = m.tt_note || "";
 
-      const updatedDisplay = m.updated_at
-        ? new Date(m.updated_at).toLocaleString("vi-VN")
+      const updatedDisplay = m.tt_updated_at
+        ? new Date(m.tt_updated_at).toLocaleString("vi-VN")
         : "Đã lưu trên Cloud";
 
-      document.getElementById("formHeaderTitle").textContent = `📂 Hồ Sơ Chi Tiết: ${m.full_name}`;
-      document.getElementById("recordCodeBadge").textContent = `HS-${String(m.stt).padStart(4, "0")}`;
+      document.getElementById("formHeaderTitle").textContent = `📂 Hồ Sơ Chi Tiết: ${m.tt_full_name}`;
+      document.getElementById("recordCodeBadge").textContent = `HS-${String(m.tt_stt).padStart(4, "0")}`;
       document.getElementById("recordTimestamp").textContent = `Cập nhật: ${updatedDisplay}`;
       document.getElementById("btnSubmitForm").textContent = "💾 Cập Nhật Lên Supabase";
       document.getElementById("btnDeleteRecord").style.display = "inline-flex";
@@ -907,15 +907,15 @@
     async function saveMember(event) {
       event.preventDefault();
 
-      const stt = parseInt(document.getElementById("fStt").value, 10) || (members.length + 1);
-      const full_name = formatVietnameseName(document.getElementById("fFullName").value);
-      const cccd = document.getElementById("fCccd").value.trim();
-      const phone = document.getElementById("fPhone").value.trim();
-      const fb_name = document.getElementById("fFbName").value.trim();
-      const manager = document.getElementById("fManager").value.trim();
-      const note = document.getElementById("fNote").value.trim();
+      const tt_stt = parseInt(document.getElementById("fStt").value, 10) || (members.length + 1);
+      const tt_full_name = formatVietnameseName(document.getElementById("fFullName").value);
+      const tt_cccd = document.getElementById("fCccd").value.trim();
+      const tt_phone = document.getElementById("fPhone").value.trim();
+      const tt_fb_name = document.getElementById("fFbName").value.trim();
+      const tt_manager = document.getElementById("fManager").value.trim();
+      const tt_note = document.getElementById("fNote").value.trim();
 
-      if (!full_name || !cccd || !phone || !manager) {
+      if (!tt_full_name || !tt_cccd || !tt_phone || !tt_manager) {
         return alert("Vui lòng nhập đầy đủ Họ tên, CCCD, SĐT và Người quản hụi!");
       }
 
@@ -926,14 +926,14 @@
 
       const recordPayload = {
         action: "save",
-        id: editingId || undefined,
-        stt,
-        full_name,
-        cccd,
-        phone,
-        fb_name,
-        manager,
-        note
+        tt_id: editingId || undefined,
+        tt_stt,
+        tt_full_name,
+        tt_cccd,
+        tt_phone,
+        tt_fb_name,
+        tt_manager,
+        tt_note
       };
 
       try {
@@ -944,8 +944,8 @@
           await fetchFromBackend();
         }
         refreshUI();
-        const savedItem = members.find(m => m.cccd === cccd);
-        if (savedItem) selectRecord(savedItem.id);
+        const savedItem = members.find(m => m.tt_cccd === tt_cccd);
+        if (savedItem) selectRecord(savedItem.tt_id);
         setSyncStatus("", "🟢 Đã đồng bộ Supabase");
       } catch (err) {
         console.error(err);
@@ -959,10 +959,10 @@
 
     async function deleteCurrentRecord() {
       if (!editingId) return;
-      const m = members.find(item => String(item.id) === String(editingId));
+      const m = members.find(item => String(item.tt_id) === String(editingId));
       if (!m) return;
 
-      if (!confirm(`Xác nhận XÓA VĨNH VIỄN hồ sơ hụi viên trên Supabase:\n"${m.full_name}" (CCCD: ${m.cccd})?`)) return;
+      if (!confirm(`Xác nhận XÓA VĨNH VIỄN hồ sơ hụi viên trên Supabase:\n"${m.tt_full_name}" (CCCD: ${m.tt_cccd})?`)) return;
 
       const btn = document.getElementById("btnDeleteRecord");
       btn.disabled = true;
@@ -971,8 +971,8 @@
       try {
         const res = await callN8nApi({
           action: "delete",
-          id: m.id,
-          cccd: m.cccd
+          tt_id: m.tt_id,
+          tt_cccd: m.tt_cccd
         });
         if (res && res.records) {
           saveCache(res.records);
@@ -999,17 +999,17 @@
       const warnBox = document.getElementById("duplicateWarning");
 
       const dupCccd = cccd.length >= 9
-        ? members.find(m => String(m.id) !== String(editingId) && m.cccd === cccd)
+        ? members.find(m => String(m.tt_id) !== String(editingId) && m.tt_cccd === cccd)
         : null;
       const dupPhone = phone.length >= 9
-        ? members.find(m => String(m.id) !== String(editingId) && m.phone === phone)
+        ? members.find(m => String(m.tt_id) !== String(editingId) && m.tt_phone === phone)
         : null;
 
       if (dupCccd) {
-        warnBox.innerHTML = `⚠️ Cảnh báo: Số CCCD <strong>${cccd}</strong> đã tồn tại ở hồ sơ <strong>${escapeHtml(dupCccd.full_name)}</strong> (Quản hụi: ${escapeHtml(dupCccd.manager)}).`;
+        warnBox.innerHTML = `⚠️ Cảnh báo: Số CCCD <strong>${cccd}</strong> đã tồn tại ở hồ sơ <strong>${escapeHtml(dupCccd.tt_full_name)}</strong> (Quản hụi: ${escapeHtml(dupCccd.tt_manager)}).`;
         warnBox.classList.add("show");
       } else if (dupPhone) {
-        warnBox.innerHTML = `⚠️ Lưu ý: SĐT <strong>${phone}</strong> đang trùng với hụi viên <strong>${escapeHtml(dupPhone.full_name)}</strong>.`;
+        warnBox.innerHTML = `⚠️ Lưu ý: SĐT <strong>${phone}</strong> đang trùng với hụi viên <strong>${escapeHtml(dupPhone.tt_full_name)}</strong>.`;
         warnBox.classList.add("show");
       } else {
         warnBox.classList.remove("show");
@@ -1099,13 +1099,13 @@
 
       const headers = ["STT", "Họ tên hụi viên", "CCCD", "SĐT", "Tên FB", "Người quản hụi", "Ghi chú"];
       const rows = members.map(m => [
-        m.stt,
-        m.full_name,
-        `="${m.cccd}"`,
-        `="${m.phone}"`,
-        m.fb_name || "",
-        m.manager || "",
-        (m.note || "").replace(/\r?\n/g, " ")
+        m.tt_stt,
+        m.tt_full_name,
+        `="${m.tt_cccd}"`,
+        `="${m.tt_phone}"`,
+        m.tt_fb_name || "",
+        m.tt_manager || "",
+        (m.tt_note || "").replace(/\r?\n/g, " ")
       ]);
 
       const csvContent = "\uFEFF" + [headers, ...rows]
@@ -1146,13 +1146,13 @@
           if (!confirm(`Đồng bộ ${imported.length} hồ sơ từ file lên Supabase?`)) return;
 
           const normalized = imported.map((item, i) => ({
-            stt: item.stt || i + 1,
-            full_name: item.full_name || item.fullName || "",
-            cccd: item.cccd || "",
-            phone: item.phone || "",
-            fb_name: item.fb_name || item.fbName || "",
-            manager: item.manager || "",
-            note: item.note || ""
+            tt_stt: item.tt_stt || item.stt || i + 1,
+            tt_full_name: item.tt_full_name || item.full_name || item.fullName || "",
+            tt_cccd: item.tt_cccd || item.cccd || "",
+            tt_phone: item.tt_phone || item.phone || "",
+            tt_fb_name: item.tt_fb_name || item.fb_name || item.fbName || "",
+            tt_manager: item.tt_manager || item.manager || "",
+            tt_note: item.tt_note || item.note || ""
           }));
 
           setSyncStatus("loading", "⏳ Đang đẩy dữ liệu lên Supabase...");
