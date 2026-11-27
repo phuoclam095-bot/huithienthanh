@@ -576,6 +576,135 @@
       .workspace { display: block; padding: 0; }
       .panel { border: none; box-shadow: none; }
     }
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: 96px 1fr;
+      gap: 10px;
+      align-items: end;
+    }
+
+    /* =========================================================================
+       TỐI ƯU TRẢI NGHIỆM TRÊN ĐIỆN THOẠI (MOBILE-FIRST & IPHONE SAFE)
+       ========================================================================= */
+    @media (max-width: 768px) {
+      /* 1. Chống tự động zoom màn hình trên iPhone khi bấm vào ô nhập liệu */
+      .input-control, .select-control, .textarea-control {
+        font-size: 16px !important;
+        padding: 11px 12px;
+      }
+
+      /* 2. Gọn thanh Header & vuốt ngang các nút công cụ trên 1 hàng duy nhất */
+      .topbar {
+        padding: 10px 12px;
+        gap: 8px;
+      }
+      .brand-icon { width: 34px; height: 34px; font-size: 14px; }
+      .brand h1 { font-size: 15px; }
+      .brand p { display: none; }
+
+      .topbar-actions {
+        width: 100%;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 2px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+      .topbar-actions::-webkit-scrollbar { display: none; }
+      .topbar-actions .btn {
+        padding: 8px 11px;
+        font-size: 12.5px;
+        flex-shrink: 0;
+      }
+
+      /* 3. Thu gọn 4 thẻ thống kê thành 2x2 sắc nét */
+      .stats-strip {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        padding: 10px 12px 0;
+      }
+      .stat-card { padding: 10px 12px; }
+      .stat-val { font-size: 18px; }
+      .stat-sub { font-size: 11px; }
+
+      /* 4. Chuyển bảng 7 cột thành danh sách dạng Thẻ (Card) không cần vuốt ngang */
+      .table-wrap { max-height: 360px; }
+      table, thead, tbody, th, td, tr { display: block; }
+      thead { display: none; }
+
+      tbody tr {
+        position: relative;
+        padding: 12px 14px 12px 68px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      /* Cột Mã STT ghim gọn bên trái thẻ */
+      tbody td.col-stt {
+        position: absolute;
+        left: 12px;
+        top: 13px;
+        width: auto;
+        padding: 0;
+        text-align: left;
+      }
+
+      /* Họ tên */
+      tbody td:nth-child(2) {
+        padding: 0 0 4px 0;
+      }
+      tbody td:nth-child(2) .member-name {
+        font-size: 15px;
+      }
+
+      /* CCCD & SĐT hiển thị cùng 1 dòng */
+      tbody td:nth-child(3),
+      tbody td:nth-child(4) {
+        display: inline-block;
+        padding: 2px 10px 4px 0;
+        font-size: 13px;
+      }
+
+      /* Ẩn bớt cột Tên FB ở danh sách thu gọn (bấm vào thẻ sẽ hiện đủ ở phiếu dưới) */
+      tbody td:nth-child(5) {
+        display: none;
+      }
+
+      /* Người quản hụi */
+      tbody td:nth-child(6) {
+        padding: 4px 0 0 0;
+      }
+
+      /* Ghi chú */
+      tbody td:nth-child(7) {
+        padding: 5px 0 0 0;
+        max-width: 100%;
+        white-space: normal;
+        font-size: 12px;
+        color: var(--ink-sub);
+      }
+
+      /* 5. Ghim thanh nút Lưu / Nhập Mới / Xóa ở đáy màn hình điện thoại */
+      .record-sheet {
+        padding: 14px 14px 78px;
+      }
+      .form-footer-actions {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(255, 255, 255, 0.96);
+        backdrop-filter: blur(8px);
+        padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+        border-top: 1px solid var(--border);
+        box-shadow: 0 -4px 16px rgba(15, 23, 42, 0.08);
+        z-index: 50;
+        gap: 8px;
+      }
+      .form-footer-actions .btn {
+        padding: 12px 10px;
+        font-size: 13.5px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -690,14 +819,15 @@
 
         <div id="duplicateWarning" class="alert-duplicate"></div>
 
-        <div class="field-group">
-            <label>Mã STT (Tự động / Có thể sửa)</label>
+        <div class="form-grid-2">
+          <div class="field-group">
+            <label>Mã STT</label>
             <input
               type="text"
               id="fDisplayCode"
               class="input-control"
-              style="font-family:monospace; font-weight:800; color:var(--primary);"
-              placeholder="VD: D01"
+              style="font-family:monospace; font-weight:800; color:var(--primary); text-align:center; padding:10px 6px;"
+              placeholder="D01"
               oninput="onManualCodeEdit(this.value)"
             />
             <input type="hidden" id="fStt" value="1" />
