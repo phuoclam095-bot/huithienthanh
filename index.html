@@ -1421,7 +1421,7 @@
       // Tìm chuỗi 12 số CCCD
       const cccd = parts.find(p => /^\d{12}$/.test(p)) || "";
 
-      // Lấy Họ và tên (thường nằm ở vị trí thứ 3: parts[2], dự phòng parts[1] nếu không có CMND cũ)
+      // Lấy Họ và tên (vị trí thứ 3: parts[2], dự phòng parts[1] nếu không có CMND cũ)
       let rawName = "";
       if (parts.length >= 3 && parts[2] && !/^\d+$/.test(parts[2])) {
         rawName = parts[2];
@@ -1434,9 +1434,7 @@
       return {
         valid: Boolean(cccd && fullName),
         cccd,
-        full_name: fullName,
-        raw_parts_count: parts.length,
-        raw_text: clean
+        full_name: fullName
       };
     }
 
@@ -1446,43 +1444,23 @@
       modal.classList.add("show");
       readerBox.innerHTML = "";
 
-      // Tạo khung hiển thị JSON kiểm tra trực tiếp bên dưới camera
-      let debugBox = document.getElementById("cccdJsonDebug");
-      if (!debugBox) {
-        debugBox = document.createElement("pre");
-        debugBox.id = "cccdJsonDebug";
-        debugBox.style.cssText = "text-align:left; background:#0F172A; color:#38BDF8; font-size:11.5px; padding:10px; border-radius:10px; margin-bottom:10px; max-height:140px; overflow:auto; white-space:pre-wrap; word-break:break-all;";
-        readerBox.parentNode.insertBefore(debugBox, readerBox.nextSibling);
-      }
+      const oldDebug = document.getElementById("cccdJsonDebug");
+      if (oldDebug) oldDebug.remove();
 
       const hasNative = "BarcodeDetector" in window;
-      debugBox.textContent = JSON.stringify({
-        status: "scanning",
-        engine: hasNative ? "Native BarcodeDetector (HD)" : "Canvas jsQR Fallback",
-        hint: "Đưa mã QR trên thẻ CCCD vào giữa khung..."
-      }, null, 2);
+      let isHandled = false;
 
       const onDecoded = (rawText) => {
+        if (isHandled) return;
         const parsed = parseCccdOnlyNameAndId(rawText);
 
-        // Xuất JSON kết quả giải mã để kiểm tra
-        const jsonResult = {
-          success: parsed.valid,
-          cccd: parsed.cccd,
-          full_name: parsed.full_name,
-          raw_text: parsed.raw_text
-        };
-        debugBox.textContent = JSON.stringify(jsonResult, null, 2);
-        console.log("QR_CCCD_JSON:", jsonResult);
-
         if (parsed.valid) {
+          isHandled = true;
           document.getElementById("fCccd").value = parsed.cccd;
           document.getElementById("fFullName").value = parsed.full_name;
           checkDuplicateInfo();
-
-          // Dừng camera sau 700ms để bạn kịp nhìn thấy JSON xác nhận rồi tự đóng
-          if (nativeScanTimer) { clearInterval(nativeScanTimer); nativeScanTimer = null; }
-          setTimeout(() => closeCccdScanner(), 700);
+          closeCccdScanner();
+          setTimeout(() => document.getElementById("fPhone").focus(), 100);
         }
       };
 
@@ -1496,7 +1474,6 @@
           audio: false
         });
 
-        // Bật lấy nét liên tục & zoom 1.7x để đọc QR nhỏ trên thẻ CCCD
         const track = nativeMediaStream.getVideoTracks()[0];
         try {
           const caps = track.getCapabilities ? track.getCapabilities() : {};
@@ -1519,9 +1496,8 @@
         const ctx = canvas.getContext("2d", { willReadFrequently: true });
 
         nativeScanTimer = setInterval(async () => {
-          if (video.readyState < 2) return;
+          if (isHandled || video.readyState < 2) return;
 
-          // 1. Ưu tiên giải mã bằng phần cứng BarcodeDetector
           if (detector) {
             try {
               const codes = await detector.detect(video);
@@ -1532,7 +1508,6 @@
             } catch (e) {}
           }
 
-          // 2. Dự phòng giải mã bằng jsQR cắt vùng trung tâm khung hình (chạy tốt trên iPhone/PC)
           if (typeof jsQR === "function" && video.videoWidth > 0) {
             const vw = video.videoWidth;
             const vh = video.videoHeight;
@@ -1552,10 +1527,8 @@
         }, 150);
 
       } catch (err) {
-        debugBox.textContent = JSON.stringify({
-          success: false,
-          error: err.message || "Không truy cập được Camera"
-        }, null, 2);
+        closeCccdScanner();
+        alert("Không mở được camera. Vui lòng cấp quyền Camera và mở trang qua HTTPS.");
       }
     }
 
