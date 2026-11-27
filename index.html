@@ -690,10 +690,16 @@
 
         <div id="duplicateWarning" class="alert-duplicate"></div>
 
-        <div class="form-grid-2">
-          <div class="field-group">
-            <label>Mã STT (Tự động)</label>
-            <input type="text" id="fDisplayCode" class="input-control" style="font-family:monospace; font-weight:800; color:var(--primary); background:var(--bg-subtle);" readonly />
+        <div class="field-group">
+            <label>Mã STT (Tự động / Có thể sửa)</label>
+            <input
+              type="text"
+              id="fDisplayCode"
+              class="input-control"
+              style="font-family:monospace; font-weight:800; color:var(--primary);"
+              placeholder="VD: D01"
+              oninput="onManualCodeEdit(this.value)"
+            />
             <input type="hidden" id="fStt" value="1" />
           </div>
 
@@ -1400,7 +1406,17 @@
       }
       bar.innerHTML = html;
     }
+    function onManualCodeEdit(val) {
+      const clean = (val || "").trim().toUpperCase();
+      // Tách phần số ở cuối chuỗi (VD: "D05" -> 5, "12" -> 12)
+      const numMatch = clean.match(/(\d+)$/);
+      const parsedNum = numMatch ? parseInt(numMatch[1], 10) : 1;
 
+      document.getElementById("fStt").value = parsedNum > 0 ? parsedNum : 1;
+      document.getElementById("recordCodeBadge").textContent = clean
+        ? (editingId ? clean : `${clean} (Mới)`)
+        : "CHƯA NHẬP MÃ";
+    }
     function formatVietnameseName(str) {
       return (str || "")
         .trim()
