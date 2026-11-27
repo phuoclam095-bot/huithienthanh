@@ -206,6 +206,12 @@
       flex-direction: column;
       overflow: hidden;
       box-shadow: 0 4px 16px rgba(15, 23, 42, 0.03);
+      transition: box-shadow 0.25s ease, border-color 0.25s ease;
+    }
+
+    .panel.highlight-new {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(15, 76, 129, 0.16);
     }
 
     .panel-header {
@@ -496,18 +502,18 @@
       <div>
         <h1>
           Hồ Sơ Quản Lý Hụi Viên
-          <span id="syncStatusPill" class="sync-pill loading">⏳ Đang kết nối Supabase...</span>
+          <span id="syncStatusPill" class="sync-pill loading">⏳ Đang kết nối dữ liệu...</span>
         </h1>
-        <p>Bảng dữ liệu: tt_hui_vien • Đồng bộ n8n & Supabase</p>
+        <p>Hệ thống lưu trữ & quản lý thông tin định danh hụi viên</p>
       </div>
     </div>
 
     <div class="topbar-actions">
-      <button class="btn btn-primary" onclick="createNewRecord()">+ Lập Hồ Sơ Mới</button>
-      <button class="btn" onclick="fetchFromBackend()">🔄 Tải lại Cloud</button>
-      <button class="btn btn-accent" onclick="exportToCSV()">📊 Xuất Excel</button>
-      <button class="btn" onclick="backupJSON()">💾 Sao lưu</button>
-      <button class="btn" onclick="document.getElementById('restoreFile').click()">📂 Khôi phục</button>
+      <button type="button" class="btn btn-primary" onclick="createNewRecord(true)">+ Lập Hồ Sơ Mới</button>
+      <button type="button" class="btn" onclick="fetchFromBackend()">🔄 Tải lại dữ liệu</button>
+      <button type="button" class="btn btn-accent" onclick="exportToCSV()">📊 Xuất Excel</button>
+      <button type="button" class="btn" onclick="backupJSON()">💾 Sao lưu</button>
+      <button type="button" class="btn" onclick="document.getElementById('restoreFile').click()">📂 Khôi phục</button>
       <input type="file" id="restoreFile" accept=".json" style="display:none;" onchange="restoreJSON(event)" />
     </div>
   </header>
@@ -517,12 +523,12 @@
     <div class="stat-card">
       <span class="stat-label">Tổng số hụi viên</span>
       <span class="stat-val" id="statTotal">0</span>
-      <span class="stat-sub">Hồ sơ trong tt_hui_vien</span>
+      <span class="stat-sub">Tổng số hồ sơ đang quản lý</span>
     </div>
     <div class="stat-card">
       <span class="stat-label">Người quản hụi</span>
       <span class="stat-val" id="statManagers">0</span>
-      <span class="stat-sub">Chủ hụi / Đầu dây</span>
+      <span class="stat-sub">Người phụ trách quản hụi</span>
     </div>
     <div class="stat-card">
       <span class="stat-label">Đã xác minh CCCD</span>
@@ -579,7 +585,7 @@
     </section>
 
     <!-- CỘT PHẢI: PHIẾU NHẬP & CHI TIẾT HỒ SƠ BỆNH ÁN -->
-    <section class="panel">
+    <section class="panel" id="formPanel">
       <div class="panel-header">
         <div class="panel-title" id="formHeaderTitle">📁 Phiếu Nhập Hồ Sơ Hụi Viên Mới</div>
         <div style="display:flex; gap:6px;" class="no-print">
@@ -590,10 +596,10 @@
       <form id="memberForm" class="record-sheet" onsubmit="saveMember(event)">
         <div class="record-banner">
           <div>
-            <div style="font-size:11.5px; color:var(--ink-sub); font-weight:600;">MÃ HỒ SƠ SUPABASE</div>
-            <div style="font-size:12px; color:var(--ink-muted); margin-top:2px;" id="recordTimestamp">Chưa lưu vào hệ thống</div>
+            <div style="font-size:11.5px; color:var(--ink-sub); font-weight:600;">MÃ HỒ SƠ LƯU TRỮ</div>
+            <div style="font-size:12px; color:var(--ink-muted); margin-top:2px;" id="recordTimestamp">Sẵn sàng nhập hồ sơ mới</div>
           </div>
-          <div class="record-id-tag" id="recordCodeBadge">STT #1</div>
+          <div class="record-id-tag" id="recordCodeBadge">HS-0001 (Mới)</div>
         </div>
 
         <div id="duplicateWarning" class="alert-duplicate"></div>
@@ -688,8 +694,8 @@
         </div>
 
         <div class="form-footer-actions no-print">
-          <button type="submit" class="btn btn-primary" id="btnSubmitForm">💾 Lưu Lên Supabase</button>
-          <button type="button" class="btn" onclick="createNewRecord()">🔄 Nhập Mới</button>
+          <button type="submit" class="btn btn-primary" id="btnSubmitForm">💾 Lưu Hồ Sơ</button>
+          <button type="button" class="btn" onclick="createNewRecord(true)">🔄 Nhập Mới</button>
           <button type="button" class="btn btn-danger" id="btnDeleteRecord" style="display:none;" onclick="deleteCurrentRecord()">🗑️ Xóa Hồ Sơ</button>
         </div>
       </form>
@@ -717,7 +723,7 @@
     window.addEventListener("DOMContentLoaded", async () => {
       loadCache();
       refreshUI();
-      createNewRecord();
+      createNewRecord(false);
       await fetchFromBackend();
     });
 
@@ -756,23 +762,32 @@
         body: JSON.stringify(payload)
       });
 
-      if (!response.ok) throw new Error("HTTP " + response.status);
-      const data = await response.json();
+      const rawText = await response.text();
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${rawText || "Lỗi máy chủ n8n"}`);
+      }
+
+      if (!rawText || !rawText.trim()) {
+        return { success: true, records: null };
+      }
+
+      const data = JSON.parse(rawText);
       return Array.isArray(data) ? data[0] : data;
     }
 
     async function fetchFromBackend() {
-      setSyncStatus("loading", "⏳ Đang đồng bộ Supabase...");
+      setSyncStatus("loading", "⏳ Đang đồng bộ dữ liệu...");
       try {
         const res = await callN8nApi({ action: "list" });
         const list = res?.records || res?.data || (Array.isArray(res) ? res : []);
         saveCache(list);
         refreshUI();
         if (!editingId) {
-          document.getElementById("fStt").value = members.length + 1;
-          document.getElementById("recordCodeBadge").textContent = `HS-${String(members.length + 1).padStart(4, "0")} (Mới)`;
+          const nextStt = members.length + 1;
+          document.getElementById("fStt").value = nextStt;
+          document.getElementById("recordCodeBadge").textContent = `HS-${String(nextStt).padStart(4, "0")} (Mới)`;
         }
-        setSyncStatus("", "🟢 Đã đồng bộ Supabase");
+        setSyncStatus("", "🟢 Đã đồng bộ hệ thống");
       } catch (err) {
         console.error(err);
         setSyncStatus("offline", "🟠 Ngoại tuyến (Dùng bản lưu tạm)");
@@ -831,7 +846,7 @@
         tbody.innerHTML = `
           <tr>
             <td colspan="7" style="text-align:center; padding:36px 16px; color:var(--ink-muted);">
-              Chưa có hồ sơ hụi viên nào trên hệ thống. Bấm <strong>"+ Lập Hồ Sơ Mới"</strong> để thêm.
+              Chưa có hồ sơ hụi viên nào. Bấm <strong>"+ Lập Hồ Sơ Mới"</strong> hoặc nhập vào phiếu bên phải để thêm.
             </td>
           </tr>
         `;
@@ -857,19 +872,29 @@
     // =========================================================================
     // THAO TÁC PHIẾU HỒ SƠ (TẠO MỚI / CHỌN XEM / LƯU / XÓA)
     // =========================================================================
-    function createNewRecord() {
+    function createNewRecord(shouldFocus = true) {
       editingId = null;
       document.getElementById("memberForm").reset();
       const nextStt = members.length + 1;
       document.getElementById("fStt").value = nextStt;
       document.getElementById("formHeaderTitle").textContent = "📁 Phiếu Nhập Hồ Sơ Hụi Viên Mới";
       document.getElementById("recordCodeBadge").textContent = `HS-${String(nextStt).padStart(4, "0")} (Mới)`;
-      document.getElementById("recordTimestamp").textContent = "Đang nhập hồ sơ mới";
-      document.getElementById("btnSubmitForm").textContent = "💾 Lưu Lên Supabase";
+      document.getElementById("recordTimestamp").textContent = "Sẵn sàng nhập hồ sơ mới";
+      document.getElementById("btnSubmitForm").textContent = "💾 Lưu Hồ Sơ";
       document.getElementById("btnDeleteRecord").style.display = "none";
       document.getElementById("duplicateWarning").classList.remove("show");
       document.getElementById("quickLinksBar").innerHTML = "";
       renderTable();
+
+      if (shouldFocus) {
+        const panel = document.getElementById("formPanel");
+        panel.classList.add("highlight-new");
+        panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        setTimeout(() => {
+          document.getElementById("fFullName").focus();
+          panel.classList.remove("highlight-new");
+        }, 450);
+      }
     }
 
     function selectRecord(id) {
@@ -887,12 +912,12 @@
 
       const updatedDisplay = m.tt_updated_at
         ? new Date(m.tt_updated_at).toLocaleString("vi-VN")
-        : "Đã lưu trên Cloud";
+        : "Đã lưu trên hệ thống";
 
       document.getElementById("formHeaderTitle").textContent = `📂 Hồ Sơ Chi Tiết: ${m.tt_full_name}`;
       document.getElementById("recordCodeBadge").textContent = `HS-${String(m.tt_stt).padStart(4, "0")}`;
       document.getElementById("recordTimestamp").textContent = `Cập nhật: ${updatedDisplay}`;
-      document.getElementById("btnSubmitForm").textContent = "💾 Cập Nhật Lên Supabase";
+      document.getElementById("btnSubmitForm").textContent = "💾 Cập Nhật Hồ Sơ";
       document.getElementById("btnDeleteRecord").style.display = "inline-flex";
       document.getElementById("duplicateWarning").classList.remove("show");
 
@@ -900,7 +925,7 @@
       renderTable();
 
       if (window.innerWidth <= 980) {
-        document.getElementById("memberForm").scrollIntoView({ behavior: "smooth" });
+        document.getElementById("formPanel").scrollIntoView({ behavior: "smooth" });
       }
     }
 
@@ -921,7 +946,7 @@
 
       const btn = document.getElementById("btnSubmitForm");
       btn.disabled = true;
-      btn.textContent = "⏳ Đang lưu lên Supabase...";
+      btn.textContent = "⏳ Đang lưu hồ sơ...";
       setSyncStatus("loading", "⏳ Đang lưu dữ liệu...");
 
       const recordPayload = {
@@ -938,22 +963,26 @@
 
       try {
         const res = await callN8nApi(recordPayload);
-        if (res && res.records) {
+        if (res && Array.isArray(res.records)) {
           saveCache(res.records);
         } else {
           await fetchFromBackend();
         }
         refreshUI();
         const savedItem = members.find(m => m.tt_cccd === tt_cccd);
-        if (savedItem) selectRecord(savedItem.tt_id);
-        setSyncStatus("", "🟢 Đã đồng bộ Supabase");
+        if (savedItem) {
+          selectRecord(savedItem.tt_id);
+        } else {
+          createNewRecord(false);
+        }
+        setSyncStatus("", "🟢 Đã đồng bộ hệ thống");
       } catch (err) {
         console.error(err);
-        alert("Không kết nối được webhook n8n! Vui lòng kiểm tra workflow hui-vien-api.");
-        setSyncStatus("offline", "🟠 Lỗi kết nối n8n");
+        alert("Lỗi khi lưu hồ sơ:\n" + err.message);
+        setSyncStatus("offline", "🟠 Lỗi lưu dữ liệu");
       } finally {
         btn.disabled = false;
-        btn.textContent = editingId ? "💾 Cập Nhật Lên Supabase" : "💾 Lưu Lên Supabase";
+        btn.textContent = editingId ? "💾 Cập Nhật Hồ Sơ" : "💾 Lưu Hồ Sơ";
       }
     }
 
@@ -962,7 +991,7 @@
       const m = members.find(item => String(item.tt_id) === String(editingId));
       if (!m) return;
 
-      if (!confirm(`Xác nhận XÓA VĨNH VIỄN hồ sơ hụi viên trên Supabase:\n"${m.tt_full_name}" (CCCD: ${m.tt_cccd})?`)) return;
+      if (!confirm(`Xác nhận XÓA VĨNH VIỄN hồ sơ hụi viên:\n"${m.tt_full_name}" (CCCD: ${m.tt_cccd})?`)) return;
 
       const btn = document.getElementById("btnDeleteRecord");
       btn.disabled = true;
@@ -974,17 +1003,17 @@
           tt_id: m.tt_id,
           tt_cccd: m.tt_cccd
         });
-        if (res && res.records) {
+        if (res && Array.isArray(res.records)) {
           saveCache(res.records);
         } else {
           await fetchFromBackend();
         }
         refreshUI();
-        createNewRecord();
-        setSyncStatus("", "🟢 Đã đồng bộ Supabase");
+        createNewRecord(false);
+        setSyncStatus("", "🟢 Đã đồng bộ hệ thống");
       } catch (err) {
-        alert("Lỗi khi xóa hồ sơ trên Supabase!");
-        setSyncStatus("offline", "🟠 Lỗi kết nối n8n");
+        alert("Lỗi khi xóa hồ sơ:\n" + err.message);
+        setSyncStatus("offline", "🟠 Lỗi kết nối");
       } finally {
         btn.disabled = false;
       }
@@ -1092,7 +1121,7 @@
     }
 
     // =========================================================================
-    // XUẤT EXCEL (CSV), SAO LƯU & KHÔI PHỤC LÊN SUPABASE
+    // XUẤT EXCEL (CSV), SAO LƯU & KHÔI PHỤC
     // =========================================================================
     function exportToCSV() {
       if (!members.length) return alert("Chưa có dữ liệu hụi viên để xuất!");
@@ -1143,7 +1172,7 @@
         try {
           const imported = JSON.parse(e.target.result);
           if (!Array.isArray(imported)) throw new Error("Invalid format");
-          if (!confirm(`Đồng bộ ${imported.length} hồ sơ từ file lên Supabase?`)) return;
+          if (!confirm(`Đồng bộ ${imported.length} hồ sơ từ file lên hệ thống?`)) return;
 
           const normalized = imported.map((item, i) => ({
             tt_stt: item.tt_stt || item.stt || i + 1,
@@ -1155,15 +1184,15 @@
             tt_note: item.tt_note || item.note || ""
           }));
 
-          setSyncStatus("loading", "⏳ Đang đẩy dữ liệu lên Supabase...");
+          setSyncStatus("loading", "⏳ Đang đẩy dữ liệu lên hệ thống...");
           const res = await callN8nApi({ action: "import_bulk", records: normalized });
-          if (res && res.records) saveCache(res.records);
+          if (res && Array.isArray(res.records)) saveCache(res.records);
           else await fetchFromBackend();
           refreshUI();
-          createNewRecord();
-          setSyncStatus("", "🟢 Đã đồng bộ Supabase");
+          createNewRecord(false);
+          setSyncStatus("", "🟢 Đã đồng bộ hệ thống");
         } catch (err) {
-          alert("File không hợp lệ hoặc lỗi đồng bộ Supabase!");
+          alert("File không hợp lệ hoặc lỗi đồng bộ:\n" + err.message);
         }
       };
       reader.readAsText(file);
