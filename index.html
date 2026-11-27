@@ -185,7 +185,7 @@
     /* MAIN WORKSPACE */
     .workspace {
       display: grid;
-      grid-template-columns: 1.15fr 0.85fr;
+      grid-template-columns: 1.18fr 0.82fr;
       gap: 16px;
       padding: 14px 20px 24px;
       max-width: 1440px;
@@ -239,7 +239,7 @@
       padding: 12px 16px;
       border-bottom: 1px solid var(--border);
       display: grid;
-      grid-template-columns: 1fr 195px;
+      grid-template-columns: 1fr 210px;
       gap: 10px;
       background: #FFFFFF;
     }
@@ -313,10 +313,21 @@
     }
 
     .col-stt {
-      font-weight: 700;
-      color: var(--ink-sub);
       text-align: center;
-      width: 52px;
+      width: 78px;
+      white-space: nowrap;
+    }
+
+    .code-pill {
+      display: inline-block;
+      font-family: monospace;
+      font-weight: 800;
+      font-size: 12.5px;
+      padding: 3px 8px;
+      border-radius: 7px;
+      background: var(--primary-soft);
+      color: var(--primary);
+      border: 1px solid #BFDBFE;
     }
 
     .member-name {
@@ -325,14 +336,10 @@
       font-size: 13.5px;
     }
 
-    .member-code {
-      font-size: 11px;
-      color: var(--ink-muted);
-      font-family: monospace;
-    }
-
     .badge-manager {
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
       padding: 3px 9px;
       border-radius: 99px;
       font-size: 11.5px;
@@ -343,8 +350,18 @@
       white-space: nowrap;
     }
 
+    .badge-prefix {
+      background: #0F766E;
+      color: #FFFFFF;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 1px 5px;
+      border-radius: 5px;
+      font-family: monospace;
+    }
+
     .note-cell {
-      max-width: 180px;
+      max-width: 170px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -352,7 +369,7 @@
       font-size: 12.5px;
     }
 
-    /* RIGHT PANEL: TỜ KHAI HỒ SƠ BỆNH ÁN */
+    /* RIGHT PANEL: TỜ KHAI HỒ SƠ */
     .record-sheet {
       padding: 18px;
       overflow-y: auto;
@@ -373,23 +390,30 @@
     }
 
     .record-id-tag {
-      font-size: 12px;
-      font-weight: 700;
+      font-size: 13.5px;
+      font-weight: 800;
+      font-family: monospace;
       color: var(--primary);
       background: #FFFFFF;
-      padding: 4px 10px;
+      padding: 5px 12px;
       border-radius: 8px;
-      border: 1px solid #BFDBFE;
+      border: 1.5px solid #93C5FD;
     }
 
     .form-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1.35fr;
+      gap: 12px;
+    }
+
+    .form-grid-equal {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
     }
 
     @media (max-width: 520px) {
-      .form-grid-2 { grid-template-columns: 1fr; }
+      .form-grid-2, .form-grid-equal { grid-template-columns: 1fr; }
     }
 
     .field-group {
@@ -408,6 +432,27 @@
     }
 
     .req { color: var(--danger); }
+
+    .select-with-add {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn-icon-add {
+      width: 40px;
+      flex-shrink: 0;
+      border-radius: 10px;
+      border: 1.5px solid #99F6E4;
+      background: var(--accent-soft);
+      color: #0F766E;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn-icon-add:hover { background: #CCFBF1; }
 
     .quick-links {
       display: flex;
@@ -453,7 +498,7 @@
 
     .form-footer-actions .btn { flex: 1; padding: 11px 14px; }
 
-    /* MODAL CAMERA QUÉT CCCD */
+    /* MODAL */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -471,10 +516,49 @@
       background: #FFFFFF;
       border-radius: 18px;
       width: 100%;
-      max-width: 420px;
-      padding: 18px;
-      text-align: center;
+      max-width: 440px;
+      padding: 20px;
       box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .modal-close-x {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: none;
+      background: var(--bg-subtle);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ink-sub);
+      cursor: pointer;
+    }
+
+    .manager-list-box {
+      margin-top: 14px;
+      max-height: 230px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+    }
+
+    .mgr-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--bg-subtle);
     }
 
     #cccdReader {
@@ -504,14 +588,15 @@
           Hồ Sơ Quản Lý Hụi Viên
           <span id="syncStatusPill" class="sync-pill loading">⏳ Đang kết nối dữ liệu...</span>
         </h1>
-        <p>Hệ thống lưu trữ & quản lý thông tin định danh hụi viên</p>
+        <p>Hệ thống lưu trữ & quản lý định danh hụi viên theo đầu dây</p>
       </div>
     </div>
 
     <div class="topbar-actions">
       <button type="button" class="btn btn-primary" onclick="createNewRecord(true)">+ Lập Hồ Sơ Mới</button>
-      <button type="button" class="btn" onclick="fetchFromBackend()">🔄 Tải lại dữ liệu</button>
-      <button type="button" class="btn btn-accent" onclick="exportToCSV()">📊 Xuất Excel</button>
+      <button type="button" class="btn btn-accent" onclick="openManagerModal()">👤 Quản lý chủ hụi</button>
+      <button type="button" class="btn" onclick="fetchFromBackend()">🔄 Tải lại</button>
+      <button type="button" class="btn" onclick="exportToCSV()">📊 Xuất Excel</button>
       <button type="button" class="btn" onclick="backupJSON()">💾 Sao lưu</button>
       <button type="button" class="btn" onclick="document.getElementById('restoreFile').click()">📂 Khôi phục</button>
       <input type="file" id="restoreFile" accept=".json" style="display:none;" onchange="restoreJSON(event)" />
@@ -558,7 +643,7 @@
           type="text"
           id="searchInput"
           class="input-control"
-          placeholder="🔍 Tìm theo Họ tên, CCCD, SĐT, Tên Facebook, Ghi chú..."
+          placeholder="🔍 Tìm theo Mã (D01), Họ tên, CCCD, SĐT, Tên FB..."
           oninput="renderTable()"
         />
         <select id="managerFilter" class="select-control" onchange="renderTable()">
@@ -570,7 +655,7 @@
         <table>
           <thead>
             <tr>
-              <th class="col-stt">STT</th>
+              <th class="col-stt">Mã / STT</th>
               <th>Họ tên hụi viên</th>
               <th>CCCD</th>
               <th>SĐT</th>
@@ -584,7 +669,7 @@
       </div>
     </section>
 
-    <!-- CỘT PHẢI: PHIẾU NHẬP & CHI TIẾT HỒ SƠ BỆNH ÁN -->
+    <!-- CỘT PHẢI: PHIẾU NHẬP & CHI TIẾT HỒ SƠ -->
     <section class="panel" id="formPanel">
       <div class="panel-header">
         <div class="panel-title" id="formHeaderTitle">📁 Phiếu Nhập Hồ Sơ Hụi Viên Mới</div>
@@ -596,31 +681,29 @@
       <form id="memberForm" class="record-sheet" onsubmit="saveMember(event)">
         <div class="record-banner">
           <div>
-            <div style="font-size:11.5px; color:var(--ink-sub); font-weight:600;">MÃ HỒ SƠ LƯU TRỮ</div>
-            <div style="font-size:12px; color:var(--ink-muted); margin-top:2px;" id="recordTimestamp">Sẵn sàng nhập hồ sơ mới</div>
+            <div style="font-size:11.5px; color:var(--ink-sub); font-weight:600;">MÃ ĐỊNH DANH HỒ SƠ</div>
+            <div style="font-size:12px; color:var(--ink-muted); margin-top:2px;" id="recordTimestamp">Tự động cấp theo ký hiệu người quản hụi</div>
           </div>
-          <div class="record-id-tag" id="recordCodeBadge">HS-0001 (Mới)</div>
+          <div class="record-id-tag" id="recordCodeBadge">CHƯA CHỌN</div>
         </div>
 
         <div id="duplicateWarning" class="alert-duplicate"></div>
 
         <div class="form-grid-2">
           <div class="field-group">
-            <label>Số thứ tự (STT)</label>
-            <input type="number" id="fStt" class="input-control" min="1" required />
+            <label>Mã STT (Tự động)</label>
+            <input type="text" id="fDisplayCode" class="input-control" style="font-family:monospace; font-weight:800; color:var(--primary); background:var(--bg-subtle);" readonly />
+            <input type="hidden" id="fStt" value="1" />
           </div>
 
           <div class="field-group">
             <label>Người quản hụi <span class="req">*</span></label>
-            <input
-              type="text"
-              id="fManager"
-              class="input-control"
-              list="managerSuggestions"
-              placeholder="VD: Chị Lan / Cô Tư..."
-              required
-            />
-            <datalist id="managerSuggestions"></datalist>
+            <div class="select-with-add">
+              <select id="fManagerSelect" class="select-control" onchange="onManagerChange()" required>
+                <option value="">-- Chọn người quản hụi --</option>
+              </select>
+              <button type="button" class="btn-icon-add no-print" title="Thêm người quản hụi mới" onclick="openManagerModal()">+</button>
+            </div>
           </div>
         </div>
 
@@ -641,7 +724,7 @@
           />
         </div>
 
-        <div class="form-grid-2">
+        <div class="form-grid-equal">
           <div class="field-group">
             <label>Số CCCD (12 số) <span class="req">*</span></label>
             <input
@@ -702,9 +785,51 @@
     </section>
   </main>
 
+  <!-- MODAL THÊM / QUẢN LÝ NGƯỜI QUẢN HỤI & KÝ HIỆU ĐỊNH DANH -->
+  <div id="managerModal" class="modal-overlay" onclick="if(event.target.id==='managerModal') closeManagerModal()">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 style="font-size:16px; font-weight:800;">👤 Quản Lý Người Quản Hụi</h3>
+        <button type="button" class="modal-close-x" onclick="closeManagerModal()">×</button>
+      </div>
+      <p style="font-size:12.5px; color:var(--ink-sub); margin-bottom:12px;">
+        Mỗi người quản hụi có 1 ký hiệu chữ cái (VD: <strong>D</strong>) để tự động đánh mã <strong>D01, D02...</strong> cho hụi viên của người đó.
+      </p>
+
+      <div class="form-grid-2" style="margin-bottom:10px;">
+        <div class="field-group">
+          <label>Ký hiệu mã (1-3 chữ) <span class="req">*</span></label>
+          <input
+            type="text"
+            id="newMgrPrefix"
+            class="input-control"
+            maxlength="3"
+            placeholder="VD: D"
+            style="text-transform:uppercase; font-family:monospace; font-weight:800; text-align:center;"
+            oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '').toUpperCase()"
+          />
+        </div>
+        <div class="field-group">
+          <label>Tên người quản hụi <span class="req">*</span></label>
+          <input
+            type="text"
+            id="newMgrName"
+            class="input-control"
+            placeholder="VD: Chị Duyên"
+            onkeydown="if(event.key==='Enter'){ event.preventDefault(); addManagerItem(); }"
+          />
+        </div>
+      </div>
+
+      <button type="button" class="btn btn-primary" style="width:100%;" onclick="addManagerItem()">+ Thêm Người Quản Hụi</button>
+
+      <div class="manager-list-box" id="managerListContainer"></div>
+    </div>
+  </div>
+
   <!-- MODAL QUÉT QR TRÊN CCCD -->
   <div id="cccdModal" class="modal-overlay" onclick="if(event.target.id==='cccdModal') closeCccdScanner()">
-    <div class="modal-card">
+    <div class="modal-card" style="text-align:center;">
       <h3 style="font-size:16px; font-weight:700;">Quét Mã QR Trên Thẻ CCCD</h3>
       <p style="font-size:12.5px; color:var(--ink-sub); margin-top:4px;">Đưa góc trên bên phải của thẻ CCCD gắn chip vào khung</p>
       <div id="cccdReader"></div>
@@ -714,14 +839,17 @@
 
   <script>
     const N8N_HUI_VIEN_WEBHOOK = "https://wsm.congtubaclieu.com.vn/webhook/hui-vien-api";
-    const CACHE_KEY = "tt_hui_vien_supabase_cache_v1";
+    const CACHE_KEY = "tt_hui_vien_supabase_cache_v2";
+    const MANAGERS_KEY = "tt_hui_vien_managers_v2";
 
     let members = [];
+    let managers = []; // [{ prefix: "D", name: "Chị Duyên" }]
     let editingId = null;
     let qrScanner = null;
 
     window.addEventListener("DOMContentLoaded", async () => {
-      loadCache();
+      loadLocalState();
+      syncManagersFromMembers();
       refreshUI();
       createNewRecord(false);
       await fetchFromBackend();
@@ -733,20 +861,174 @@
       pill.textContent = text;
     }
 
-    function loadCache() {
+    function loadLocalState() {
       try {
-        const raw = localStorage.getItem(CACHE_KEY);
-        members = raw ? JSON.parse(raw) : [];
+        members = JSON.parse(localStorage.getItem(CACHE_KEY) || "[]");
       } catch (e) {
         members = [];
       }
+      try {
+        managers = JSON.parse(localStorage.getItem(MANAGERS_KEY) || "[]");
+      } catch (e) {
+        managers = [];
+      }
+    }
+
+    function saveManagersToLocal() {
+      localStorage.setItem(MANAGERS_KEY, JSON.stringify(managers));
+    }
+
+    // Tách định dạng lưu trữ "D|Chị Duyên" hoặc chuỗi cũ "Chị Duyên"
+    function parseManagerField(raw) {
+      const str = (raw || "").trim();
+      if (!str) return { prefix: "", name: "" };
+      if (str.includes("|")) {
+        const [p, ...rest] = str.split("|");
+        return { prefix: p.trim().toUpperCase(), name: rest.join("|").trim() };
+      }
+      const found = managers.find(m => m.name.toLowerCase() === str.toLowerCase());
+      if (found) return { prefix: found.prefix, name: found.name };
+      const autoPrefix = str.replace(/[^a-zA-ZÀ-ỹ]/g, "").charAt(0).toUpperCase() || "H";
+      return { prefix: autoPrefix, name: str };
+    }
+
+    function formatDisplayCode(prefix, sttNum) {
+      const p = (prefix || "H").toUpperCase();
+      const n = String(Number(sttNum) || 1).padStart(2, "0");
+      return `${p}${n}`;
+    }
+
+    // Tự động trích xuất danh sách người quản hụi từ dữ liệu Supabase nếu máy mới chưa có
+    function syncManagersFromMembers() {
+      let changed = false;
+      members.forEach(m => {
+        const parsed = parseManagerField(m.tt_manager);
+        if (parsed.name && !managers.some(item => item.name.toLowerCase() === parsed.name.toLowerCase())) {
+          let prefix = parsed.prefix || "H";
+          if (managers.some(item => item.prefix === prefix)) {
+            prefix = prefix + (managers.length + 1);
+          }
+          managers.push({ prefix, name: parsed.name });
+          changed = true;
+        }
+      });
+      if (changed) saveManagersToLocal();
     }
 
     function saveCache(list) {
       members = Array.isArray(list) ? list : [];
-      members.sort((a, b) => Number(a.tt_stt) - Number(b.tt_stt));
-      members.forEach((m, idx) => { m.tt_stt = idx + 1; });
+      syncManagersFromMembers();
       localStorage.setItem(CACHE_KEY, JSON.stringify(members));
+    }
+
+    // =========================================================================
+    // QUẢN LÝ NGƯỜI QUẢN HỤI (THÊM / XÓA)
+    // =========================================================================
+    function openManagerModal() {
+      document.getElementById("managerModal").classList.add("show");
+      renderManagerModalList();
+      setTimeout(() => document.getElementById("newMgrPrefix").focus(), 100);
+    }
+
+    function closeManagerModal() {
+      document.getElementById("managerModal").classList.remove("show");
+    }
+
+    function addManagerItem() {
+      const prefixInput = document.getElementById("newMgrPrefix");
+      const nameInput = document.getElementById("newMgrName");
+      const prefix = prefixInput.value.trim().toUpperCase();
+      const name = formatVietnameseName(nameInput.value);
+
+      if (!prefix || !name) {
+        return alert("Vui lòng nhập cả Ký hiệu mã (VD: D) và Tên người quản hụi!");
+      }
+      if (managers.some(m => m.prefix === prefix)) {
+        return alert(`Ký hiệu "${prefix}" đã được dùng cho người quản hụi khác. Vui lòng chọn ký hiệu khác!`);
+      }
+      if (managers.some(m => m.name.toLowerCase() === name.toLowerCase())) {
+        return alert(`Người quản hụi "${name}" đã tồn tại!`);
+      }
+
+      managers.push({ prefix, name });
+      saveManagersToLocal();
+      prefixInput.value = "";
+      nameInput.value = "";
+
+      refreshUI();
+      renderManagerModalList();
+
+      // Tự động chọn luôn người vừa thêm vào phiếu nhập hiện tại
+      const selectEl = document.getElementById("fManagerSelect");
+      selectEl.value = `${prefix}|${name}`;
+      onManagerChange();
+    }
+
+    function removeManagerItem(prefix) {
+      const inUse = members.some(m => parseManagerField(m.tt_manager).prefix === prefix);
+      if (inUse) {
+        return alert("Không thể xóa người quản hụi này vì đang có hồ sơ hụi viên thuộc quyền quản lý!");
+      }
+      managers = managers.filter(m => m.prefix !== prefix);
+      saveManagersToLocal();
+      refreshUI();
+      renderManagerModalList();
+    }
+
+    function renderManagerModalList() {
+      const box = document.getElementById("managerListContainer");
+      if (!managers.length) {
+        box.innerHTML = `<div style="text-align:center; color:var(--ink-muted); font-size:12.5px; padding:14px;">Chưa có người quản hụi nào. Hãy thêm ở phía trên.</div>`;
+        return;
+      }
+
+      box.innerHTML = managers.map(mgr => {
+        const count = members.filter(m => parseManagerField(m.tt_manager).prefix === mgr.prefix).length;
+        return `
+          <div class="mgr-item">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span class="code-pill">${escapeHtml(mgr.prefix)}</span>
+              <div>
+                <div style="font-size:13.5px; font-weight:700;">${escapeHtml(mgr.name)}</div>
+                <div style="font-size:11.5px; color:var(--ink-sub);">Đang quản lý: ${count} hụi viên (Mã ${escapeHtml(mgr.prefix)}01...)</div>
+              </div>
+            </div>
+            <button type="button" class="btn btn-danger" style="padding:5px 9px; font-size:12px;" onclick="removeManagerItem('${escapeAttr(mgr.prefix)}')">Xóa</button>
+          </div>
+        `;
+      }).join("");
+    }
+
+    // Tự động tính STT tiếp theo theo đúng ký hiệu của người quản hụi được chọn (VD: D01, D02...)
+    function onManagerChange() {
+      const val = document.getElementById("fManagerSelect").value;
+      if (!val) {
+        document.getElementById("fDisplayCode").value = "";
+        document.getElementById("recordCodeBadge").textContent = "CHƯA CHỌN";
+        return;
+      }
+
+      const { prefix } = parseManagerField(val);
+
+      if (editingId) {
+        const currentMember = members.find(m => String(m.tt_id) === String(editingId));
+        if (currentMember && parseManagerField(currentMember.tt_manager).prefix === prefix) {
+          const code = formatDisplayCode(prefix, currentMember.tt_stt);
+          document.getElementById("fStt").value = currentMember.tt_stt;
+          document.getElementById("fDisplayCode").value = code;
+          document.getElementById("recordCodeBadge").textContent = code;
+          return;
+        }
+      }
+
+      const sameManagerMembers = members.filter(m => parseManagerField(m.tt_manager).prefix === prefix);
+      const maxStt = sameManagerMembers.reduce((max, item) => Math.max(max, Number(item.tt_stt) || 0), 0);
+      const nextStt = maxStt + 1;
+      const nextCode = formatDisplayCode(prefix, nextStt);
+
+      document.getElementById("fStt").value = nextStt;
+      document.getElementById("fDisplayCode").value = nextCode;
+      document.getElementById("recordCodeBadge").textContent = editingId ? nextCode : `${nextCode} (Mới)`;
     }
 
     // =========================================================================
@@ -782,11 +1064,7 @@
         const list = res?.records || res?.data || (Array.isArray(res) ? res : []);
         saveCache(list);
         refreshUI();
-        if (!editingId) {
-          const nextStt = members.length + 1;
-          document.getElementById("fStt").value = nextStt;
-          document.getElementById("recordCodeBadge").textContent = `HS-${String(nextStt).padStart(4, "0")} (Mới)`;
-        }
+        if (!editingId) onManagerChange();
         setSyncStatus("", "🟢 Đã đồng bộ hệ thống");
       } catch (err) {
         console.error(err);
@@ -802,8 +1080,11 @@
 
     function updateStats() {
       document.getElementById("statTotal").textContent = members.length;
-      const managers = new Set(members.map(m => (m.tt_manager || "").trim()).filter(Boolean));
-      document.getElementById("statManagers").textContent = managers.size;
+      const mgrSet = new Set([
+        ...managers.map(m => m.name),
+        ...members.map(m => parseManagerField(m.tt_manager).name).filter(Boolean)
+      ]);
+      document.getElementById("statManagers").textContent = mgrSet.size;
       const verified = members.filter(m => /^\d{12}$/.test((m.tt_cccd || "").trim())).length;
       document.getElementById("statVerified").textContent = verified;
       const withNotes = members.filter(m => (m.tt_note || "").trim().length > 0).length;
@@ -811,31 +1092,54 @@
     }
 
     function updateManagerDropdowns() {
-      const managers = Array.from(new Set(members.map(m => (m.tt_manager || "").trim()).filter(Boolean))).sort();
+      // 1. Dropdown lọc ở danh sách bên trái
       const filterSelect = document.getElementById("managerFilter");
-      const currentVal = filterSelect.value;
-
+      const currentFilter = filterSelect.value;
       filterSelect.innerHTML = `<option value="">Tất cả người quản hụi (${managers.length})</option>` +
-        managers.map(mgr => `<option value="${escapeAttr(mgr)}">${escapeHtml(mgr)}</option>`).join("");
-      filterSelect.value = managers.includes(currentVal) ? currentVal : "";
+        managers.map(mgr => `<option value="${escapeAttr(mgr.prefix)}">[${escapeHtml(mgr.prefix)}] ${escapeHtml(mgr.name)}</option>`).join("");
+      filterSelect.value = managers.some(m => m.prefix === currentFilter) ? currentFilter : "";
 
-      const dataList = document.getElementById("managerSuggestions");
-      dataList.innerHTML = managers.map(mgr => `<option value="${escapeAttr(mgr)}">`).join("");
+      // 2. Dropdown chọn người quản hụi trên phiếu nhập
+      const formSelect = document.getElementById("fManagerSelect");
+      const currentFormVal = formSelect.value;
+      formSelect.innerHTML = `<option value="">-- Chọn người quản hụi --</option>` +
+        managers.map(mgr => {
+          const val = `${mgr.prefix}|${mgr.name}`;
+          return `<option value="${escapeAttr(val)}">[${escapeHtml(mgr.prefix)}] ${escapeHtml(mgr.name)}</option>`;
+        }).join("");
+
+      if (currentFormVal && Array.from(formSelect.options).some(o => o.value === currentFormVal)) {
+        formSelect.value = currentFormVal;
+      } else if (!editingId && managers.length === 1) {
+        formSelect.value = `${managers[0].prefix}|${managers[0].name}`;
+        onManagerChange();
+      }
     }
 
     function renderTable() {
       const tbody = document.getElementById("memberTableBody");
       const keyword = (document.getElementById("searchInput").value || "").trim().toLowerCase();
-      const mgrFilter = document.getElementById("managerFilter").value;
+      const mgrFilterPrefix = document.getElementById("managerFilter").value;
 
-      const filtered = members.filter(m => {
-        const matchManager = !mgrFilter || (m.tt_manager || "").trim() === mgrFilter;
+      const sorted = [...members].sort((a, b) => {
+        const pa = parseManagerField(a.tt_manager).prefix;
+        const pb = parseManagerField(b.tt_manager).prefix;
+        if (pa !== pb) return pa.localeCompare(pb);
+        return (Number(a.tt_stt) || 0) - (Number(b.tt_stt) || 0);
+      });
+
+      const filtered = sorted.filter(m => {
+        const parsedMgr = parseManagerField(m.tt_manager);
+        const displayCode = formatDisplayCode(parsedMgr.prefix, m.tt_stt).toLowerCase();
+
+        const matchManager = !mgrFilterPrefix || parsedMgr.prefix === mgrFilterPrefix;
         const matchKeyword = !keyword ||
+          displayCode.includes(keyword) ||
           (m.tt_full_name || "").toLowerCase().includes(keyword) ||
-          (m.tt_cccd || "").toLowerCase().includes(keyword) ||
+          (m.cccd || m.tt_cccd || "").toLowerCase().includes(keyword) ||
           (m.tt_phone || "").toLowerCase().includes(keyword) ||
           (m.tt_fb_name || "").toLowerCase().includes(keyword) ||
-          (m.tt_manager || "").toLowerCase().includes(keyword) ||
+          parsedMgr.name.toLowerCase().includes(keyword) ||
           (m.tt_note || "").toLowerCase().includes(keyword);
         return matchManager && matchKeyword;
       });
@@ -846,40 +1150,53 @@
         tbody.innerHTML = `
           <tr>
             <td colspan="7" style="text-align:center; padding:36px 16px; color:var(--ink-muted);">
-              Chưa có hồ sơ hụi viên nào. Bấm <strong>"+ Lập Hồ Sơ Mới"</strong> hoặc nhập vào phiếu bên phải để thêm.
+              Chưa có hồ sơ hụi viên nào. Bấm <strong>"👤 Quản lý chủ hụi"</strong> để tạo ký hiệu chủ hụi và nhập hồ sơ mới.
             </td>
           </tr>
         `;
         return;
       }
 
-      tbody.innerHTML = filtered.map(m => `
-        <tr class="${String(m.tt_id) === String(editingId) ? "selected" : ""}" onclick="selectRecord('${escapeAttr(m.tt_id)}')">
-          <td class="col-stt">${m.tt_stt}</td>
-          <td>
-            <div class="member-name">${escapeHtml(m.tt_full_name)}</div>
-            <div class="member-code">HS-${String(m.tt_stt).padStart(4, "0")}</div>
-          </td>
-          <td style="font-family:monospace; font-weight:600;">${escapeHtml(m.tt_cccd)}</td>
-          <td style="font-weight:600; color:var(--primary);">${escapeHtml(m.tt_phone)}</td>
-          <td>${escapeHtml(m.tt_fb_name || "—")}</td>
-          <td><span class="badge-manager">${escapeHtml(m.tt_manager || "Chưa phân")}</span></td>
-          <td class="note-cell" title="${escapeAttr(m.tt_note || "")}">${escapeHtml(m.tt_note || "—")}</td>
-        </tr>
-      `).join("");
+      tbody.innerHTML = filtered.map(m => {
+        const parsedMgr = parseManagerField(m.tt_manager);
+        const displayCode = formatDisplayCode(parsedMgr.prefix, m.tt_stt);
+        return `
+          <tr class="${String(m.tt_id) === String(editingId) ? "selected" : ""}" onclick="selectRecord('${escapeAttr(m.tt_id)}')">
+            <td class="col-stt"><span class="code-pill">${escapeHtml(displayCode)}</span></td>
+            <td><div class="member-name">${escapeHtml(m.tt_full_name)}</div></td>
+            <td style="font-family:monospace; font-weight:600;">${escapeHtml(m.tt_cccd)}</td>
+            <td style="font-weight:600; color:var(--primary);">${escapeHtml(m.tt_phone)}</td>
+            <td>${escapeHtml(m.tt_fb_name || "—")}</td>
+            <td>
+              <span class="badge-manager">
+                <span class="badge-prefix">${escapeHtml(parsedMgr.prefix)}</span>
+                ${escapeHtml(parsedMgr.name || "Chưa phân")}
+              </span>
+            </td>
+            <td class="note-cell" title="${escapeAttr(m.tt_note || "")}">${escapeHtml(m.tt_note || "—")}</td>
+          </tr>
+        `;
+      }).join("");
     }
 
     // =========================================================================
     // THAO TÁC PHIẾU HỒ SƠ (TẠO MỚI / CHỌN XEM / LƯU / XÓA)
     // =========================================================================
     function createNewRecord(shouldFocus = true) {
+      const prevManager = document.getElementById("fManagerSelect").value;
       editingId = null;
       document.getElementById("memberForm").reset();
-      const nextStt = members.length + 1;
-      document.getElementById("fStt").value = nextStt;
+
+      if (prevManager) {
+        document.getElementById("fManagerSelect").value = prevManager;
+      } else if (managers.length === 1) {
+        document.getElementById("fManagerSelect").value = `${managers[0].prefix}|${managers[0].name}`;
+      }
+
+      onManagerChange();
+
       document.getElementById("formHeaderTitle").textContent = "📁 Phiếu Nhập Hồ Sơ Hụi Viên Mới";
-      document.getElementById("recordCodeBadge").textContent = `HS-${String(nextStt).padStart(4, "0")} (Mới)`;
-      document.getElementById("recordTimestamp").textContent = "Sẵn sàng nhập hồ sơ mới";
+      document.getElementById("recordTimestamp").textContent = "Tự động cấp mã theo ký hiệu người quản hụi";
       document.getElementById("btnSubmitForm").textContent = "💾 Lưu Hồ Sơ";
       document.getElementById("btnDeleteRecord").style.display = "none";
       document.getElementById("duplicateWarning").classList.remove("show");
@@ -891,9 +1208,13 @@
         panel.classList.add("highlight-new");
         panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
         setTimeout(() => {
-          document.getElementById("fFullName").focus();
+          if (!document.getElementById("fManagerSelect").value) {
+            document.getElementById("fManagerSelect").focus();
+          } else {
+            document.getElementById("fFullName").focus();
+          }
           panel.classList.remove("highlight-new");
-        }, 450);
+        }, 400);
       }
     }
 
@@ -902,12 +1223,17 @@
       if (!m) return;
 
       editingId = m.tt_id;
+      const parsedMgr = parseManagerField(m.tt_manager);
+      const displayCode = formatDisplayCode(parsedMgr.prefix, m.tt_stt);
+      const mgrOptionVal = `${parsedMgr.prefix}|${parsedMgr.name}`;
+
       document.getElementById("fStt").value = m.tt_stt;
+      document.getElementById("fDisplayCode").value = displayCode;
+      document.getElementById("fManagerSelect").value = mgrOptionVal;
       document.getElementById("fFullName").value = m.tt_full_name || "";
       document.getElementById("fCccd").value = m.tt_cccd || "";
       document.getElementById("fPhone").value = m.tt_phone || "";
       document.getElementById("fFbName").value = m.tt_fb_name || "";
-      document.getElementById("fManager").value = m.tt_manager || "";
       document.getElementById("fNote").value = m.tt_note || "";
 
       const updatedDisplay = m.tt_updated_at
@@ -915,8 +1241,8 @@
         : "Đã lưu trên hệ thống";
 
       document.getElementById("formHeaderTitle").textContent = `📂 Hồ Sơ Chi Tiết: ${m.tt_full_name}`;
-      document.getElementById("recordCodeBadge").textContent = `HS-${String(m.tt_stt).padStart(4, "0")}`;
-      document.getElementById("recordTimestamp").textContent = `Cập nhật: ${updatedDisplay}`;
+      document.getElementById("recordCodeBadge").textContent = displayCode;
+      document.getElementById("recordTimestamp").textContent = `Quản hụi: ${parsedMgr.name} • Cập nhật: ${updatedDisplay}`;
       document.getElementById("btnSubmitForm").textContent = "💾 Cập Nhật Hồ Sơ";
       document.getElementById("btnDeleteRecord").style.display = "inline-flex";
       document.getElementById("duplicateWarning").classList.remove("show");
@@ -932,16 +1258,20 @@
     async function saveMember(event) {
       event.preventDefault();
 
-      const tt_stt = parseInt(document.getElementById("fStt").value, 10) || (members.length + 1);
+      const managerRaw = document.getElementById("fManagerSelect").value.trim();
+      const tt_stt = parseInt(document.getElementById("fStt").value, 10) || 1;
       const tt_full_name = formatVietnameseName(document.getElementById("fFullName").value);
       const tt_cccd = document.getElementById("fCccd").value.trim();
       const tt_phone = document.getElementById("fPhone").value.trim();
       const tt_fb_name = document.getElementById("fFbName").value.trim();
-      const tt_manager = document.getElementById("fManager").value.trim();
       const tt_note = document.getElementById("fNote").value.trim();
 
-      if (!tt_full_name || !tt_cccd || !tt_phone || !tt_manager) {
-        return alert("Vui lòng nhập đầy đủ Họ tên, CCCD, SĐT và Người quản hụi!");
+      if (!managerRaw) {
+        alert("Vui lòng chọn Người quản hụi (hoặc bấm nút + để thêm người quản hụi mới)!");
+        return openManagerModal();
+      }
+      if (!tt_full_name || !tt_cccd || !tt_phone) {
+        return alert("Vui lòng nhập đầy đủ Họ tên, CCCD và SĐT!");
       }
 
       const btn = document.getElementById("btnSubmitForm");
@@ -957,7 +1287,7 @@
         tt_cccd,
         tt_phone,
         tt_fb_name,
-        tt_manager,
+        tt_manager: managerRaw,
         tt_note
       };
 
@@ -991,7 +1321,9 @@
       const m = members.find(item => String(item.tt_id) === String(editingId));
       if (!m) return;
 
-      if (!confirm(`Xác nhận XÓA VĨNH VIỄN hồ sơ hụi viên:\n"${m.tt_full_name}" (CCCD: ${m.tt_cccd})?`)) return;
+      const parsedMgr = parseManagerField(m.tt_manager);
+      const code = formatDisplayCode(parsedMgr.prefix, m.tt_stt);
+      if (!confirm(`Xác nhận XÓA VĨNH VIỄN hồ sơ [${code}] "${m.tt_full_name}"?`)) return;
 
       const btn = document.getElementById("btnDeleteRecord");
       btn.disabled = true;
@@ -1035,10 +1367,14 @@
         : null;
 
       if (dupCccd) {
-        warnBox.innerHTML = `⚠️ Cảnh báo: Số CCCD <strong>${cccd}</strong> đã tồn tại ở hồ sơ <strong>${escapeHtml(dupCccd.tt_full_name)}</strong> (Quản hụi: ${escapeHtml(dupCccd.tt_manager)}).`;
+        const mgr = parseManagerField(dupCccd.tt_manager);
+        const code = formatDisplayCode(mgr.prefix, dupCccd.tt_stt);
+        warnBox.innerHTML = `⚠️ Cảnh báo: Số CCCD <strong>${cccd}</strong> đã tồn tại ở hồ sơ <strong>[${code}] ${escapeHtml(dupCccd.tt_full_name)}</strong> (Quản hụi: ${escapeHtml(mgr.name)}).`;
         warnBox.classList.add("show");
       } else if (dupPhone) {
-        warnBox.innerHTML = `⚠️ Lưu ý: SĐT <strong>${phone}</strong> đang trùng với hụi viên <strong>${escapeHtml(dupPhone.tt_full_name)}</strong>.`;
+        const mgr = parseManagerField(dupPhone.tt_manager);
+        const code = formatDisplayCode(mgr.prefix, dupPhone.tt_stt);
+        warnBox.innerHTML = `⚠️ Lưu ý: SĐT <strong>${phone}</strong> đang trùng với hụi viên <strong>[${code}] ${escapeHtml(dupPhone.tt_full_name)}</strong>.`;
         warnBox.classList.add("show");
       } else {
         warnBox.classList.remove("show");
@@ -1126,16 +1462,19 @@
     function exportToCSV() {
       if (!members.length) return alert("Chưa có dữ liệu hụi viên để xuất!");
 
-      const headers = ["STT", "Họ tên hụi viên", "CCCD", "SĐT", "Tên FB", "Người quản hụi", "Ghi chú"];
-      const rows = members.map(m => [
-        m.tt_stt,
-        m.tt_full_name,
-        `="${m.tt_cccd}"`,
-        `="${m.tt_phone}"`,
-        m.tt_fb_name || "",
-        m.tt_manager || "",
-        (m.tt_note || "").replace(/\r?\n/g, " ")
-      ]);
+      const headers = ["Mã STT", "Họ tên hụi viên", "CCCD", "SĐT", "Tên FB", "Người quản hụi", "Ghi chú"];
+      const rows = members.map(m => {
+        const mgr = parseManagerField(m.tt_manager);
+        return [
+          formatDisplayCode(mgr.prefix, m.tt_stt),
+          m.tt_full_name,
+          `="${m.tt_cccd}"`,
+          `="${m.tt_phone}"`,
+          m.tt_fb_name || "",
+          mgr.name || "",
+          (m.tt_note || "").replace(/\r?\n/g, " ")
+        ];
+      });
 
       const csvContent = "\uFEFF" + [headers, ...rows]
         .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(","))
@@ -1153,7 +1492,7 @@
     }
 
     function backupJSON() {
-      const blob = new Blob([JSON.stringify(members, null, 2)], { type: "application/json" });
+      const blob = new Blob([JSON.stringify({ managers, records: members }, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -1170,9 +1509,15 @@
       const reader = new FileReader();
       reader.onload = async (e) => {
         try {
-          const imported = JSON.parse(e.target.result);
+          const parsed = JSON.parse(e.target.result);
+          const imported = Array.isArray(parsed) ? parsed : (parsed.records || []);
           if (!Array.isArray(imported)) throw new Error("Invalid format");
           if (!confirm(`Đồng bộ ${imported.length} hồ sơ từ file lên hệ thống?`)) return;
+
+          if (Array.isArray(parsed.managers)) {
+            managers = parsed.managers;
+            saveManagersToLocal();
+          }
 
           const normalized = imported.map((item, i) => ({
             tt_stt: item.tt_stt || item.stt || i + 1,
